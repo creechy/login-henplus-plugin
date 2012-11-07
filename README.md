@@ -30,4 +30,6 @@ The `list-credentials` command takes an optional parameter: `-p`
 
 The `login` command takes one parameter: `<alias>`
 
+##Notes##
 
+Passwords are encrypted with a master password which you are prompted for the first time you execute any operation.
