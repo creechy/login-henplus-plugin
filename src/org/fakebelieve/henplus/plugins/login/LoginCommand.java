@@ -6,6 +6,7 @@ package org.fakebelieve.henplus.plugins.login;
 
 import henplus.AbstractCommand;
 import henplus.Command;
+import henplus.CommandDispatcher;
 import henplus.HenPlus;
 import henplus.SQLSession;
 import henplus.SessionManager;
@@ -24,6 +25,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -143,6 +145,7 @@ public class LoginCommand extends AbstractCommand {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } catch (GeneralSecurityException ex) {
+            masterPassword = null;
             throw new RuntimeException(ex);
         }
 
@@ -277,7 +280,7 @@ public class LoginCommand extends AbstractCommand {
         } else if ("list-credentials".equals(cmd)) {
             loadCredentials();
 
-            String opt = (argc > 0) ? st.nextToken():null;
+            String opt = (argc > 0) ? st.nextToken() : null;
 
             boolean showPasswords = (opt != null && opt.equals("-p"));
 
@@ -291,7 +294,7 @@ public class LoginCommand extends AbstractCommand {
                 row[0] = new Column(credential.getAlias());
                 row[1] = new Column(credential.getUrl());
                 row[2] = new Column(credential.getUser());
-                row[3] = new Column(showPasswords ? credential.getPassword():"*****");
+                row[3] = new Column(showPasswords ? credential.getPassword() : "*****");
                 table.addRow(row);
             }
             table.closeTable();
@@ -424,5 +427,31 @@ public class LoginCommand extends AbstractCommand {
                 + "\tTo connect using an aliased credential:\n"
                 + "\t\tlogin <alias>\n\n"
                 + "\t* Credentials are encrypted for storage";
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see henplus.Command#participateInCommandCompletion()
+     */
+    @Override
+    public boolean participateInCommandCompletion() {
+        return true;
+    }
+
+    @Override
+    public Iterator complete(CommandDispatcher disp, String partialCommand, String lastWord) {
+
+        List<String> aliases = new ArrayList<String>();
+
+        if (partialCommand.startsWith("login") && masterPassword != null) {
+            loadCredentials();
+            for (Credential credential : credentials) {
+                if (credential.getAlias().startsWith(lastWord)) {
+                    aliases.add(credential.getAlias());
+                }
+            }
+        }
+
+        return aliases.iterator();
     }
 }
