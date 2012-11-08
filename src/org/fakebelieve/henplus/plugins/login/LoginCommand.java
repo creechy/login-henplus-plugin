@@ -426,22 +426,22 @@ public class LoginCommand extends AbstractCommand {
 
     @Override
     public String getShortDescription() {
-        return "login using stored credentials";
+        return "Login using stored credentials.";
     }
 
     @Override
     public String getSynopsis(String cmd) {
         if (CMD_LOGIN.equals(cmd)) {
-            return CMD_LOGIN + " <alias>";
+            return CMD_LOGIN + " <cred-alias> [<session-alias>]";
         }
         if (CMD_LIST_CREDS.equals(cmd)) {
-            return CMD_LIST_CREDS;
+            return CMD_LIST_CREDS + " [-p]";
         }
         if (CMD_SET_CRED.equals(cmd)) {
-            return CMD_SET_CRED + " <alias> <url> <user>";
+            return CMD_SET_CRED + " <cred-alias> <url> <user>";
         }
         if (CMD_REMOVE_CRED.equals(cmd)) {
-            return CMD_REMOVE_CRED + " <alias>";
+            return CMD_REMOVE_CRED + " <cred-alias>";
         }
 
         return "";
@@ -456,14 +456,14 @@ public class LoginCommand extends AbstractCommand {
         return "\tCreate and use login aliases with credentials.\n"
                 + "\n"
                 + "\tTo create or update an aliased credential:\n"
-                + "\t\tset-credential <alias> <url> <user>\n"
+                + "\t\tset-credential <cred-alias> <url> <user>\n"
                 + "\t\t* You will be prompted to set a password\n\n"
                 + "\tTo remove an aliased credential:\n"
-                + "\t\tremove-credential <alias>\n\n"
+                + "\t\tremove-credential <cred-alias>\n\n"
                 + "\tTo list credentials:\n"
-                + "\t\tlist-credentials\n\n"
+                + "\t\tlist-credentials [-p]\n\n"
                 + "\tTo connect using an aliased credential:\n"
-                + "\t\tlogin <alias>\n\n"
+                + "\t\tlogin <cred-alias> [<session-alias>]\n\n"
                 + "\t* Credentials are encrypted for storage";
     }
 
