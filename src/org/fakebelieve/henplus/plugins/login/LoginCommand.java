@@ -48,6 +48,10 @@ public class LoginCommand extends AbstractCommand {
     private String masterPassword = null;
     private PasswordEncryptionUtil encryptor = null;
     private File passwordFile;
+    public static final String CMD_LOGIN = "login";
+    public static final String CMD_SET_CRED = "set-credential";
+    public static final String CMD_REMOVE_CRED = "remove-credential";
+    public static final String CMD_LIST_CREDS = "list-credentials";
 
     static {
         LIST_META = new ColumnMetaData[4];
@@ -60,7 +64,8 @@ public class LoginCommand extends AbstractCommand {
     @Override
     public String[] getCommandList() {
         return new String[]{
-                    "login", "list-credentials", "set-credential", "remove-credential"};
+                    CMD_LOGIN, CMD_LIST_CREDS, CMD_SET_CRED, CMD_REMOVE_CRED
+                };
     }
 
     public LoginCommand() {
@@ -232,7 +237,7 @@ public class LoginCommand extends AbstractCommand {
         StringTokenizer st = new StringTokenizer(param);
         int argc = st.countTokens();
 
-        if ("login".equals(cmd)) {
+        if (CMD_LOGIN.equals(cmd)) {
             if (argc < 1 || argc > 2) {
                 return SYNTAX_ERROR;
             }
@@ -276,7 +281,7 @@ public class LoginCommand extends AbstractCommand {
                 HenPlus.msg().println(e.toString());
                 return EXEC_FAILED;
             }
-        } else if ("list-credentials".equals(cmd)) {
+        } else if (CMD_LIST_CREDS.equals(cmd)) {
             loadCredentials();
 
             String opt = (argc > 0) ? st.nextToken() : null;
@@ -298,7 +303,7 @@ public class LoginCommand extends AbstractCommand {
             }
             table.closeTable();
             return SUCCESS;
-        } else if ("set-credential".equals(cmd)) {
+        } else if (CMD_SET_CRED.equals(cmd)) {
             if (argc != 3) {
                 return SYNTAX_ERROR;
             }
@@ -310,7 +315,7 @@ public class LoginCommand extends AbstractCommand {
 
             updateCredential(alias, url, user, password);
             return SUCCESS;
-        } else if ("remove-credential".equals(cmd)) {
+        } else if (CMD_REMOVE_CRED.equals(cmd)) {
             if (argc != 1) {
                 return SYNTAX_ERROR;
             }
@@ -344,6 +349,14 @@ public class LoginCommand extends AbstractCommand {
         return new String(passwordArray);
     }
 
+    /**
+     * Get the CurrentSessionName from the ConnectCommand.
+     *
+     * Uses reflection to get the current session name from the built-in
+     * ConnectCommand.
+     *
+     * @return
+     */
     protected String getCurrentSessionName() {
         try {
             return (String) currentSessionNameField.get(_connectCommand);
@@ -354,6 +367,14 @@ public class LoginCommand extends AbstractCommand {
         }
     }
 
+    /**
+     * Set the current session name in the ConnectCommand
+     *
+     * Uses reflection to set the current session name in the built-in
+     * ConnectCommand.
+     *
+     * @param value
+     */
     protected void setCurrentSessionName(String value) {
         try {
             currentSessionNameField.set(_connectCommand, value);
@@ -364,6 +385,16 @@ public class LoginCommand extends AbstractCommand {
         }
     }
 
+    /**
+     * Create a unique session name
+     *
+     * Uses reflection to call into the ConnectCommand's createSessionName()
+     * method to create a unique session name.
+     *
+     * @param session
+     * @param alias
+     * @return
+     */
     protected String createSessionName(SQLSession session, String alias) {
         try {
             return (String) createSessionNameMethod.invoke(_connectCommand, session, alias);
@@ -377,7 +408,7 @@ public class LoginCommand extends AbstractCommand {
     }
 
     /**
-     * we can connect, even if we don't have a running connection.
+     * None of our commands require a valid session.
      */
     @Override
     public boolean requiresValidSession(String cmd) {
@@ -393,14 +424,6 @@ public class LoginCommand extends AbstractCommand {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see henplus.Command#shutdown()
-     */
-    @Override
-    public void shutdown() {
-    }
-
     @Override
     public String getShortDescription() {
         return "login using stored credentials";
@@ -408,17 +431,17 @@ public class LoginCommand extends AbstractCommand {
 
     @Override
     public String getSynopsis(String cmd) {
-        if ("login".equals(cmd)) {
-            return "login <alias>";
+        if (CMD_LOGIN.equals(cmd)) {
+            return CMD_LOGIN + " <alias>";
         }
-        if ("list-credentials".equals(cmd)) {
-            return "list-credentials";
+        if (CMD_LIST_CREDS.equals(cmd)) {
+            return CMD_LIST_CREDS;
         }
-        if ("set-credential".equals(cmd)) {
-            return "set-credential <alias> <url> <user> <password>";
+        if (CMD_SET_CRED.equals(cmd)) {
+            return CMD_SET_CRED + " <alias> <url> <user>";
         }
-        if ("remove-credential".equals(cmd)) {
-            return "remove-credential <alias>";
+        if (CMD_REMOVE_CRED.equals(cmd)) {
+            return CMD_REMOVE_CRED + " <alias>";
         }
 
         return "";
@@ -453,13 +476,24 @@ public class LoginCommand extends AbstractCommand {
         return true;
     }
 
+    /**
+     * Offer command completion.
+     *
+     * For the "login" and "remove-credential" commands offer the known
+     * aliases to auto complete with.
+     *
+     * @param disp
+     * @param partialCommand
+     * @param lastWord
+     * @return
+     */
     @Override
     public Iterator complete(CommandDispatcher disp, String partialCommand, String lastWord) {
 
         List<String> aliases = new ArrayList<String>();
 
         if (masterPassword != null) {
-            if (partialCommand.startsWith("login")) {
+            if (partialCommand.startsWith(CMD_LOGIN) || partialCommand.startsWith(CMD_REMOVE_CRED)) {
                 loadCredentials();
                 for (Credential credential : credentials) {
                     if (credential.getAlias().startsWith(lastWord)) {
