@@ -16,7 +16,7 @@ The plugin responds to four commands `login`, `set-credential`, `remove-credenti
 
 *Creating and updating connection settings with the `set-credential` command*
 
-The `set-credential` command takes four parameters: `<alias>` `<url>` `<username>` `<password>`
+The `set-credential` command takes four parameters: `<alias>` `<url>` `<username>`
 
 *Removing connection settings with the `remove-credential` command*
 

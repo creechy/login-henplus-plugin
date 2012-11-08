@@ -25,7 +25,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -241,7 +240,7 @@ public class LoginCommand extends AbstractCommand {
             String alias = (argc == 2) ? st.nextToken() : null;
             Credential credential = getCredential(credAlias);
             if (credential == null) {
-                HenPlus.msg().println("Could not find login alias");
+                HenPlus.msg().println("Could not find login alias.");
                 return EXEC_FAILED;
             }
 
@@ -300,14 +299,22 @@ public class LoginCommand extends AbstractCommand {
             table.closeTable();
             return SUCCESS;
         } else if ("set-credential".equals(cmd)) {
+            if (argc != 3) {
+                return SYNTAX_ERROR;
+            }
+
             String alias = st.nextToken();
             String url = st.nextToken();
             String user = st.nextToken();
-            String password = st.nextToken();
+            String password = promptPassword("Password: ");
 
             updateCredential(alias, url, user, password);
             return SUCCESS;
         } else if ("remove-credential".equals(cmd)) {
+            if (argc != 1) {
+                return SYNTAX_ERROR;
+            }
+
             String alias = st.nextToken();
 
             removeCredential(alias);
@@ -401,13 +408,20 @@ public class LoginCommand extends AbstractCommand {
 
     @Override
     public String getSynopsis(String cmd) {
-        return "login <alias>\n"
-                + "\tor\n"
-                + "\tlist-credentials\n"
-                + "\tor\n"
-                + "\tset-credential <alias> <url> <user> <password>\n"
-                + "\tor\n"
-                + "\tremove-credential <alias>";
+        if ("login".equals(cmd)) {
+            return "login <alias>";
+        }
+        if ("list-credentials".equals(cmd)) {
+            return "list-credentials";
+        }
+        if ("set-credential".equals(cmd)) {
+            return "set-credential <alias> <url> <user> <password>";
+        }
+        if ("remove-credential".equals(cmd)) {
+            return "remove-credential <alias>";
+        }
+
+        return "";
     }
 
     /*
@@ -419,7 +433,8 @@ public class LoginCommand extends AbstractCommand {
         return "\tCreate and use login aliases with credentials.\n"
                 + "\n"
                 + "\tTo create or update an aliased credential:\n"
-                + "\t\tset-credential <alias> <url> <user> <password>\n\n"
+                + "\t\tset-credential <alias> <url> <user>\n"
+                + "\t\t* You will be prompted to set a password\n\n"
                 + "\tTo remove an aliased credential:\n"
                 + "\t\tremove-credential <alias>\n\n"
                 + "\tTo list credentials:\n"
@@ -443,11 +458,13 @@ public class LoginCommand extends AbstractCommand {
 
         List<String> aliases = new ArrayList<String>();
 
-        if (partialCommand.startsWith("login") && masterPassword != null) {
-            loadCredentials();
-            for (Credential credential : credentials) {
-                if (credential.getAlias().startsWith(lastWord)) {
-                    aliases.add(credential.getAlias());
+        if (masterPassword != null) {
+            if (partialCommand.startsWith("login")) {
+                loadCredentials();
+                for (Credential credential : credentials) {
+                    if (credential.getAlias().startsWith(lastWord)) {
+                        aliases.add(credential.getAlias());
+                    }
                 }
             }
         }
