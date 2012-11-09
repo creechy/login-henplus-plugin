@@ -490,19 +490,25 @@ public class LoginCommand extends AbstractCommand {
     @Override
     public Iterator complete(CommandDispatcher disp, String partialCommand, String lastWord) {
 
-        List<String> aliases = new ArrayList<String>();
 
         if (masterPassword != null) {
             if (partialCommand.startsWith(CMD_LOGIN) || partialCommand.startsWith(CMD_REMOVE_CRED)) {
+                if (argumentCount(partialCommand) > ("".equals(lastWord) ? 1 : 2)) {
+                    return null;
+                }
+
                 loadCredentials();
+
+                List<String> aliases = new ArrayList<String>();
                 for (Credential credential : credentials) {
                     if (credential.getAlias().startsWith(lastWord)) {
                         aliases.add(credential.getAlias());
                     }
                 }
+                return aliases.iterator();
             }
         }
 
-        return aliases.iterator();
+        return null;
     }
 }
