@@ -100,7 +100,13 @@ public class LoginCommand extends AbstractCommand {
             f.setAccessible(true);
             _knownUrls = (SortedMap) f.get(_connectCommand);
 
-            currentSessionNameField = _connectCommand.getClass().getDeclaredField("currentSessionName");
+	    try {
+		f = _connectCommand.getClass().getDeclaredField("currentSessionName");
+	    }
+	    catch (NoSuchFieldException ex) {
+		f = _connectCommand.getClass().getDeclaredField("_currentSessionName");
+	    }
+	    currentSessionNameField = f;
             currentSessionNameField.setAccessible(true);
 
             createSessionNameMethod = _connectCommand.getClass().getDeclaredMethod("createSessionName", SQLSession.class, String.class);
