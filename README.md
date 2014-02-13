@@ -8,7 +8,8 @@ Simply put `login-henplus-plugin.jar` in to the CLASSPATH of `henplus`, generall
 
 Start `henplus` and register the plugin. Use the `plug-in` command for this. This only needs to be done once, and will be persisted.
 
-     Hen*Plus> plug-in org.fakebelieve.henplus.plugins.LoginCommand
+     Hen*Plus> plug-in org.fakebelieve.henplus.plugins.login.LoginCommand
+
 
 ###Usage###
 
@@ -16,7 +17,7 @@ The plugin responds to four commands `login`, `set-credential`, `remove-credenti
 
 *Creating and updating connection settings with the `set-credential` command*
 
-The `set-credential` command takes four parameters: `<alias>` `<url>` `<username>`
+The `set-credential` command takes three parameters: `<alias>` `<url>` `<username>`
 
 *Removing connection settings with the `remove-credential` command*
 
