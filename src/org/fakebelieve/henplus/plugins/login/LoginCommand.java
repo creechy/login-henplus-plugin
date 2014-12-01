@@ -249,14 +249,18 @@ public class LoginCommand extends AbstractCommand {
             }
             String credAlias = (String) st.nextElement();
             String catalog = null;
-            if (credAlias.contains("?")) {
+            String alias = (argc == 2) ? st.nextToken() : null;
+
+            Credential credential = getCredential(credAlias);
+
+            if (credential == null && credAlias.contains("/")) {
                 String parameter = credAlias;
-                int separatorIndex = parameter.indexOf("?");
+                int separatorIndex = parameter.indexOf("/");
                 credAlias = parameter.substring(0, separatorIndex);
                 catalog = parameter.substring(separatorIndex + 1);
+                credential = getCredential(credAlias);
             }
-            String alias = (argc == 2) ? st.nextToken() : null;
-            Credential credential = getCredential(credAlias);
+
             if (credential == null) {
                 HenPlus.msg().println("Could not find login alias.");
                 return EXEC_FAILED;
@@ -479,7 +483,7 @@ public class LoginCommand extends AbstractCommand {
                 + "\tTo list credentials:\n"
                 + "\t\tlist-credentials [-p]\n\n"
                 + "\tTo connect using an aliased credential:\n"
-                + "\t\tlogin <cred-alias>[?catalog] [<session-alias>]\n\n"
+                + "\t\tlogin <cred-alias>[/catalog] [<session-alias>]\n\n"
                 + "\t* Credentials are encrypted for storage";
     }
 
