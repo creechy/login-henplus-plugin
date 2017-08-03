@@ -1,8 +1,8 @@
-##Login Henplus Plug-In##
+## Login Henplus Plug-In ##
 
 This plugin allows you to manage connection settings with credentials and use them to connect to databases.
 
-###Easy Setup###
+### Easy Setup ###
 
 Simply put `login-henplus-plugin.jar` in to the CLASSPATH of `henplus`, generally in the `share/henplus` folder somewhere.
 
@@ -11,7 +11,7 @@ Start `henplus` and register the plugin. Use the `plug-in` command for this. Thi
      Hen*Plus> plug-in org.fakebelieve.henplus.plugins.login.LoginCommand
 
 
-###Usage###
+### Usage ###
 
 The plugin responds to four commands `login`, `set-credential`, `remove-credential` and `list-credentials`.
 
